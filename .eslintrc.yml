@@ -16,9 +16,14 @@ rules:
     semi:
         - error
         - "never"
+    class-methods-use-this: 0
     prettier/prettier:
         - error
         - semi: false
+          trailingComma: all
     flowtype/no-primitive-constructor-types: 2
     flowtype/no-dupe-keys: 2
+    # Let Prettier take care of the following rules
+    comma-dangle: 0
+    arrow-parens: 0
         
