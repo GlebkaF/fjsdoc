@@ -1,6 +1,10 @@
-// @flow
-console.log("Just 42")
+import parse from "./utils/parse"
+import importString from "./utils/import-string"
 
-export default function unnamed(a: number): string {
-  return String(a)
+export default function unnamed(path: string): string {
+  return importString(path).then(code => {
+    console.log(code)
+    const AST = parse(code)
+    console.log(AST)
+  })
 }
