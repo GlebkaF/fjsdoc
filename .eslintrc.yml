@@ -1,0 +1,24 @@
+extends: airbnb-base
+parser: babel-eslint
+root: true
+plugins:
+    - flowtype
+    - import
+    - prettier
+    - chai-friendly
+env: 
+    node: true
+    mocha: true
+rules:
+    quotes:
+        - error
+        - "double"
+    semi:
+        - error
+        - "never"
+    prettier/prettier:
+        - error
+        - semi: false
+    flowtype/no-primitive-constructor-types: 2
+    flowtype/no-dupe-keys: 2
+        
