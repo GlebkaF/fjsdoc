@@ -11,10 +11,14 @@
     * Список параметров конструктора с описаниями и типами из JSdoc. Eсли параметры конструктора типизированы Flow, то вместо типов JSdoc подставить типы flow.
 
 #### Micro TODO
-- [+] Построить АСТ через бабилон
-- [ ] Отобразить название класса
-- [ ] Отобразить название всех свойств класса
-- [ ] Отобразить список всех методов класса
-- [ ] Для конструктора и всех методов показать типы flow
-- [ ] Распарсить описания из jsdoc
-- [ ] Распарсить @param из jsdoc
+- [x] Get AST via babylon
+- [ ] Get class names within a file:
+  - [x] Get names from named and default export declarations
+  - [ ] Get names from variable declarations
+  - [ ] Get names from unassigned class expressions
+  - [ ] Get names for any other class declarations
+- [ ] Get a list of class properties
+- [ ] Get a list of class methods
+- [ ] Get flow types for class properties and methods
+- [ ] Parse jsdoc descriptions
+- [ ] Parse jsodc @param

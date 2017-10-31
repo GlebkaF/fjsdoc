@@ -1,14 +1,14 @@
 import { expect } from "chai"
 
-import parse from "./parse"
+import parseFile from "./parse-file"
 
-describe.only("parse.js", () => {
+describe("parse-file.js", () => {
   it("Should return AST for valid JS code", () => {
     const code = `
       import _ from 'lodash'
       const a = 5
     `
-    const { type, start, end } = parse(code)
+    const { type, start, end } = parseFile(code)
     expect(type).to.be.equal("File")
     expect(start).to.be.equal(0)
     expect(end).to.be.equal(52)
@@ -16,7 +16,7 @@ describe.only("parse.js", () => {
 
   it("Should throw error for invalid JS code", () => {
     const code = "function () => { const a = [1 2 3]}"
-    const invalidParse = () => parse(code)
+    const invalidParse = () => parseFile(code)
     expect(invalidParse).to.throw()
   })
 })

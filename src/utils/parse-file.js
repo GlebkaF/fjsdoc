@@ -1,6 +1,7 @@
 // @flow
-// const babylon = require("babylon")
 import { parse } from "babylon"
+
+import type { File } from "../types"
 
 const PARSE_OPTIONS = {
   sourceType: "module",
@@ -8,10 +9,11 @@ const PARSE_OPTIONS = {
 }
 
 /**
- * Parse given code and prepare AST for generating docs.
+ * Parse given code into AST.
  *
  * @param {string} code - string which represents javascript code
+ * @returns {File}
  */
-export default function babylonParse(code: string): any {
+export default function parseFile(code: string): File {
   return parse(code, PARSE_OPTIONS)
 }
