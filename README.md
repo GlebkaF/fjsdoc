@@ -15,7 +15,7 @@ MVP that shows how we can use jsdoc and flow types together when generating docs
 - [x] get AST via babylon
 - [x] get names from named and default export declarations
 - [x] get raw JSdoc class description
-- [ ] get a list of class methods
+- [x] get a list of class methods
 - [ ] get flow types for class methods
 - [ ] parse linked JSDoc for each class method
 - [ ] reconcile flow and JSdoc types for class methods
