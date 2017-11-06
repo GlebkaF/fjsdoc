@@ -31,9 +31,12 @@ const typeContains = (arr: any[]) => ({ type }) => R.contains(type, arr)
  * @param {ClassMethod} classMethod 
  * @returns {FunctionDoc}
  */
-const mapClassMethodToDoc = (classMethod): ClassMethod => ({
+const mapClassMethodToDoc = (classMethod): FunctionDoc => ({
   name: R.path(["key", "name"], classMethod),
-  description: R.path(["leadingComments", "0", "value"], classMethod),
+  jsdoc: {
+    raw: R.path(["leadingComments", "0", "value"], classMethod),
+    description: R.path(["leadingComments", "0", "value"], classMethod),
+  },
 })
 
 /**
@@ -41,14 +44,11 @@ const mapClassMethodToDoc = (classMethod): ClassMethod => ({
  * @param {ClassDeclaration} classDeclaration
  * @returns {FunctionDoc[]}
  */
-const resolveMethodsDocs = (
-  classDeclaration: ClassDeclaration,
-): FunctionDoc[] =>
-  R.pipe(
-    R.path(["body", "body"]),
-    R.filter(typeEquals("ClassMethod")),
-    R.map(mapClassMethodToDoc),
-  )(classDeclaration)
+const resolveMethodsDocs = R.pipe(
+  R.path(["body", "body"]),
+  R.filter(typeEquals("ClassMethod")),
+  R.map(mapClassMethodToDoc),
+)
 
 /**
  * Find linked comment in the comments section provided by babylon.
@@ -81,7 +81,10 @@ const mapClassDeclarationToDoc = commentBlocks => (
    * We have to find linked comment manually in this case, because it's
    * actually linked to the export declaration not to the class declaration
    */
-  description: findLinkedCommentBlock(commentBlocks)(classDeclaration),
+  jsdoc: {
+    raw: findLinkedCommentBlock(commentBlocks)(classDeclaration),
+    description: findLinkedCommentBlock(commentBlocks)(classDeclaration),
+  },
   methods: resolveMethodsDocs(classDeclaration),
 })
 

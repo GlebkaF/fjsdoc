@@ -13,11 +13,11 @@ Full support is:
 MVP that shows how we can use jsdoc and flow types together when generating docs.
 
 - [x] get AST via babylon
-- [x] get names from named and default export declarations
-- [x] get raw JSdoc class description
-- [x] get a list of class methods
-- [ ] get flow types for class methods
-- [ ] parse linked JSDoc for each class method
+- [x] get class names from named and default export declarations
+- [x] get raw JSdoc of a class (i.e. linked to a class comment block)
+- [x] get a list of a class methods
+- [ ] get flow types of a class methods
+- [ ] parse JSDoc for each class method
 - [ ] reconcile flow and JSdoc types for class methods
 - [ ] arrange repo with lerna and yarn workspaces
 - [ ] create simple react(?) app which represents output of fjs core function
@@ -31,8 +31,6 @@ Full support of the class properties and methods.
   - [ ] get names from variable declarations.
   - [ ] get names from unassigned class expressions.
   - [ ] get names for any other class declarations.
-
-### v0.0.3
 
 ### v1.0.0
 - [ ] cli

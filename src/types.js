@@ -1,15 +1,33 @@
 // @flow
 
 // doc types
+export type TypeDef = {
+  name: string,
+  type: string,
+}
+
+export type Flow = {|
+  params?: TypeDef[],
+  returns?: TypeDef,
+|}
+
+export type JSdoc = {|
+  raw: string,
+  description?: string,
+  params?: TypeDef[],
+  returns?: TypeDef,
+|}
+
 export type FunctionDoc = {|
   name: string,
-  description: string,
+  jsdoc?: JSdoc,
+  flow?: Flow,
 |}
 
 export type ClassDoc = {|
   name: string,
-  description: string,
   methods: FunctionDoc[],
+  jsdoc?: JSdoc,
 |}
 
 // babylon classes

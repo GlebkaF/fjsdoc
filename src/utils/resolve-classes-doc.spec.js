@@ -6,10 +6,6 @@ import parseFile from "./parse-file"
 import resolveClasesDoc from "./resolve-classes-doc"
 
 describe("parse-classes.js", () => {
-  it("Should be a function", () => {
-    expect(resolveClasesDoc).to.be.a("function")
-  })
-
   describe("Class declarations within export declarations", () => {
     const code = `
       /**
@@ -34,17 +30,17 @@ describe("parse-classes.js", () => {
       expect(actualNames).to.be.deep.equal(expectedNames)
     })
 
-    it.only("Should return linked to the class comment block", () => {
+    it("Should return raw jsdoc of the classes", () => {
       const ast = parseFile(code)
       const classesDoc = resolveClasesDoc(ast)
 
-      const expectedDescriptions = [
+      const expectedRawComments = [
         "*\n       * This is the comment block we are looking for.\n       * This line making it multiline\n       ",
         "*\n       * This doc attached to NamedExport\n       ",
       ]
-      const actualDescriptions = classesDoc.map(R.path(["description"]))
+      const actualDescriptions = classesDoc.map(R.path(["jsdoc", ["raw"]]))
 
-      expect(actualDescriptions).to.be.deep.equal(expectedDescriptions)
+      expect(actualDescriptions).to.be.deep.equal(expectedRawComments)
     })
   })
 
@@ -54,21 +50,21 @@ describe("parse-classes.js", () => {
         /**
          * This is constructor
          */
-        constructor() {}
+        constructor(a: MyFancyType, b: ?boolean): AnotherFancyType {}
 
         /**
          * This is public method
          */
-        publicMethod(a: string): string {}
+        publicMethod(c: string) {}
 
         /**
          * This is private method
          */
-        _privateMethod() {}
+        _privateMethod(): number {}
       }
     `
 
-    it("Should return class methods names", () => {
+    it("Should return names of the class methods", () => {
       const ast = parseFile(code)
       const classesDoc = resolveClasesDoc(ast)
 
@@ -78,18 +74,64 @@ describe("parse-classes.js", () => {
       expect(actualNames).to.be.deep.equal(expectedNames)
     })
 
-    it("Should return raw methods descriptions", () => {
+    it("Should return raw jsdocs of the class methods", () => {
       const ast = parseFile(code)
       const classesDoc = resolveClasesDoc(ast)
 
-      const expectedNames = [
+      const expectedRawComments = [
         "*\n         * This is constructor\n         ",
         "*\n         * This is public method\n         ",
         "*\n         * This is private method\n         ",
       ]
-      const actualNames = classesDoc[0].methods.map(R.path(["description"]))
+      const actualNames = classesDoc[0].methods.map(R.path(["jsdoc", "raw"]))
+      expect(actualNames).to.be.deep.equal(expectedRawComments)
+    })
 
-      expect(actualNames).to.be.deep.equal(expectedNames)
+    it("Should return flow types of the class methods", () => {
+      const ast = parseFile(code)
+      const classesDoc = resolveClasesDoc(ast)
+
+      const constructorTypes = {
+        params: [
+          {
+            name: "a",
+            type: "MyFancyType",
+          },
+          {
+            name: "b",
+            type: "?boolean",
+          },
+        ],
+        returns: {
+          name: "",
+          type: "AnotherFancyType",
+        },
+      }
+
+      const publicMethodTypes = {
+        params: [
+          {
+            name: "c",
+            type: "string",
+          },
+        ],
+      }
+
+      const privateMethodTypes = {
+        returns: {
+          name: "",
+          type: "number",
+        },
+      }
+
+      const expectedTypes = [
+        constructorTypes,
+        publicMethodTypes,
+        privateMethodTypes,
+      ]
+
+      const actualNames = classesDoc[0].methods.map(R.path(["flow"]))
+      expect(actualNames).to.be.deep.equal(expectedTypes)
     })
   })
 })
