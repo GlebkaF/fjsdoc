@@ -1,6 +1,6 @@
-# fjsdoc
+# 🚧 Under development, 1.0 will be released someday
+# flowdoc
 Build JS documentation leveraging JSDoc and Flow.
-
 ## Roadmap
 Full support is:
 - parse name
@@ -34,7 +34,8 @@ Full support of the class properties and methods.
 
 ### v1.0.0
 - [ ] cli
-- [ ] docs for classes, functions and variables within a file
+- [ ] docs for classes, functions and variables
+- [ ] docs for flow types and interfaces
 - [ ] *.js -> html docs
 - [ ] ???
 
