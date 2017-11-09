@@ -1,5 +1,18 @@
 // @flow
-import R from "ramda"
+import {
+  equals,
+  contains,
+  map,
+  filter,
+  pipe,
+  cond,
+  always,
+  T,
+  path,
+  pathEq,
+  pathOr,
+  find,
+} from "ramda"
 import type {
   File,
   Node,
@@ -8,6 +21,9 @@ import type {
   CommentBlock,
   ClassDoc,
   FunctionDoc,
+  FlowTypes,
+  TypeDef,
+  ParamIdentifier,
 } from "../types"
 
 /**
@@ -16,7 +32,7 @@ import type {
  * @param {Node} node
  * @returns {boolean}
  */
-const typeEquals = (value: any) => ({ type }) => R.equals(type, value)
+const equalsType = (value: any) => ({ type }) => equals(type, value)
 
 /**
  * 
@@ -24,7 +40,59 @@ const typeEquals = (value: any) => ({ type }) => R.equals(type, value)
  * @param {Node} node
  * @returns {boolean}
  */
-const typeContains = (arr: any[]) => ({ type }) => R.contains(type, arr)
+const containsType = (arr: any[]) => ({ type }) => contains(type, arr)
+
+/**
+ * 
+ * @param {ParamIdentifier} paramIdentifier
+ * @returns {string}
+ */
+const resolveFlowTypeName = cond([
+  [
+    pathEq(["type"], "Identifier"),
+    pipe(path(["typeAnnotation"]), x => resolveFlowTypeName(x)),
+  ],
+  [
+    pathEq(["type"], "NullableTypeAnnotation"),
+    pipe(path(["typeAnnotation"]), x => resolveFlowTypeName(x)),
+  ],
+  [
+    pathEq(["type"], "TypeAnnotation"),
+    pipe(path(["typeAnnotation"]), x => resolveFlowTypeName(x)),
+  ],
+  [pathEq(["type"], "GenericTypeAnnotation"), path(["id", "name"])],
+  [pathEq(["type"], "StringTypeAnnotation"), always("string")],
+  [pathEq(["type"], "NumberTypeAnnotation"), always("number")],
+  [pathEq(["type"], "BooleanTypeAnnotation"), always("boolean")],
+  [pathEq(["type"], "VoidTypeAnnotation"), always("void")],
+  [pathEq(["type"], "NullLiteralTypeAnnotation"), always("void")],
+  [pathEq(["type"], "AnyTypeAnnotation"), always("any")],
+  [T, always("void")],
+])
+
+/**
+ * 
+ * @param {ParamIdentifier} param
+ * @returns {TypeDef}
+ */
+const mapFlowTypeDef = (param: ParamIdentifier): TypeDef => ({
+  name: pathOr("unnamed", ["name"], param),
+  type: resolveFlowTypeName(param),
+  isNullable: pathEq(
+    ["typeAnnotation", "typeAnnotation", "type"],
+    "NullableTypeAnnotation",
+    param,
+  ),
+})
+
+/**
+ * @param {ClassMethod} classMethod
+ * @returns {FlowTypes}
+ */
+const resolveClassMethodFlowTypes = (classMethod: ClassMethod): FlowTypes => ({
+  params: pipe(path(["params"]), map(mapFlowTypeDef))(classMethod),
+  returns: mapFlowTypeDef(path(["returnType"], classMethod)),
+})
 
 /**
  * 
@@ -32,10 +100,11 @@ const typeContains = (arr: any[]) => ({ type }) => R.contains(type, arr)
  * @returns {FunctionDoc}
  */
 const mapClassMethodToDoc = (classMethod): FunctionDoc => ({
-  name: R.path(["key", "name"], classMethod),
+  name: path(["key", "name"], classMethod),
+  flow: resolveClassMethodFlowTypes(classMethod),
   jsdoc: {
-    raw: R.path(["leadingComments", "0", "value"], classMethod),
-    description: R.path(["leadingComments", "0", "value"], classMethod),
+    raw: path(["leadingComments", "0", "value"], classMethod),
+    description: path(["leadingComments", "0", "value"], classMethod),
   },
 })
 
@@ -44,10 +113,10 @@ const mapClassMethodToDoc = (classMethod): FunctionDoc => ({
  * @param {ClassDeclaration} classDeclaration
  * @returns {FunctionDoc[]}
  */
-const resolveMethodsDocs = R.pipe(
-  R.path(["body", "body"]),
-  R.filter(typeEquals("ClassMethod")),
-  R.map(mapClassMethodToDoc),
+const resolveMethodsDocs = pipe(
+  path(["body", "body"]),
+  filter(equalsType("ClassMethod")),
+  map(mapClassMethodToDoc),
 )
 
 /**
@@ -60,10 +129,10 @@ const resolveMethodsDocs = R.pipe(
 const findLinkedCommentBlock = (comments: CommentBlock[]) => (
   node: Node,
 ): string => {
-  const nodeStartLine = R.path(["loc", "end", "line"], node)
-  return R.pipe(
-    R.find(R.pathEq(["loc", "end", "line"], nodeStartLine - 1)),
-    R.pathOr("", ["value"]),
+  const nodeStartLine = path(["loc", "end", "line"], node)
+  return pipe(
+    find(pathEq(["loc", "end", "line"], nodeStartLine - 1)),
+    pathOr("", ["value"]),
   )(comments)
 }
 
@@ -102,11 +171,11 @@ export default function resolveClasesDoc({
     "ExportNamedDeclaration",
   ]
 
-  const commentBlocks = R.filter(typeEquals("CommentBlock"), comments)
-  return R.pipe(
-    R.filter(typeContains(exportDeclarations)),
-    R.map(R.path(["declaration"])),
-    R.filter(typeEquals("ClassDeclaration")),
-    R.map(mapClassDeclarationToDoc(commentBlocks)),
+  const commentBlocks = filter(equalsType("CommentBlock"), comments)
+  return pipe(
+    filter(containsType(exportDeclarations)),
+    map(path(["declaration"])),
+    filter(equalsType("ClassDeclaration")),
+    map(mapClassDeclarationToDoc(commentBlocks)),
   )(program.body)
 }

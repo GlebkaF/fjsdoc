@@ -55,7 +55,7 @@ describe("parse-classes.js", () => {
         /**
          * This is public method
          */
-        publicMethod(c: string) {}
+        publicMethod(c: string, d: ?NullableFancyType) {}
 
         /**
          * This is private method
@@ -96,15 +96,18 @@ describe("parse-classes.js", () => {
           {
             name: "a",
             type: "MyFancyType",
+            isNullable: false,
           },
           {
             name: "b",
-            type: "?boolean",
+            type: "boolean",
+            isNullable: true,
           },
         ],
         returns: {
-          name: "",
+          name: "unnamed",
           type: "AnotherFancyType",
+          isNullable: false,
         },
       }
 
@@ -113,14 +116,27 @@ describe("parse-classes.js", () => {
           {
             name: "c",
             type: "string",
+            isNullable: false,
+          },
+          {
+            name: "d",
+            type: "NullableFancyType",
+            isNullable: true,
           },
         ],
+        returns: {
+          name: "unnamed",
+          type: "void",
+          isNullable: false,
+        },
       }
 
       const privateMethodTypes = {
+        params: [],
         returns: {
-          name: "",
+          name: "unnamed",
           type: "number",
+          isNullable: false,
         },
       }
 
@@ -133,5 +149,23 @@ describe("parse-classes.js", () => {
       const actualNames = classesDoc[0].methods.map(R.path(["flow"]))
       expect(actualNames).to.be.deep.equal(expectedTypes)
     })
+    /**
+     * TODO: Flow test-cases return && params:
+     * number
+     * string
+     * boolean
+     * void
+     * null
+     * Object
+     * Array
+     * ?string
+     * string[]
+     * ?FancyType[]
+     * FancyType[]
+     * FancyType | string
+     * string | string
+     * FancyType | AnotherFancyType
+     * ?FancyType | string
+     */
   })
 })

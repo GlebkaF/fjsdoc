@@ -1,14 +1,15 @@
 // @flow
 
 // doc types
-export type TypeDef = {
+export type TypeDef = {|
   name: string,
   type: string,
-}
+  isNullable: boolean,
+|}
 
-export type Flow = {|
-  params?: TypeDef[],
-  returns?: TypeDef,
+export type FlowTypes = {|
+  params: TypeDef[],
+  returns: ?TypeDef,
 |}
 
 export type JSdoc = {|
@@ -21,7 +22,7 @@ export type JSdoc = {|
 export type FunctionDoc = {|
   name: string,
   jsdoc?: JSdoc,
-  flow?: Flow,
+  flow?: FlowTypes,
 |}
 
 export type ClassDoc = {|
@@ -39,6 +40,16 @@ export type CommentBlock = any
 export type ClassDeclaration = any
 
 export type ClassMethod = any
+
+export type TypeAnnotation = {
+  type: string,
+  name: string,
+}
+
+export type ParamIdentifier = {
+  name: string,
+  typeAnnotation?: TypeAnnotation,
+}
 
 export type Node = {
   type: string,
